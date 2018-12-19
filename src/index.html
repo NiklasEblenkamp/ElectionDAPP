@@ -92,47 +92,56 @@
     <div class="container" style="width: 800px;">
       <div class="row">
         <div class="col-lg-12">
-          <h1 class="text-center">Election DAPP</h1>
+          <h1 class="text-center">Election Dapp</h1>
           <hr/>
           <br/>
           <div id="loader">
             <p class="text-center">Loading...</p>
           </div>
           <div id="content" style="display: none;">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Name</th>
-                  <th scope="col"> Party</th>
-                  <th scope="col">Your Vote</th>
-                </tr>
-              </thead>
-              <tbody id="candidatesResults">
-              </tbody>
-            </table>
-            <hr/>
-            
-            
-          
-          </div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Party</th>
+                    <th scope="col">Your Vote</th>
+                  </tr>
+                </thead>
+                <tbody id="candidatesResults">
+                </tbody>
+              </table>
+              <hr/>                                
+          </div>  
+          <div id="resultsCandidate" style="display: none;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Party</th>
+                    <th scope="col">Votes</th>
+                  </tr>
+                </thead>
+                <tbody id="resultListCandidate">
+                </tbody>
+              </table>
+              <hr/>
+            </div>          
+            </div>
         </div>
       </div>
     </div>
 
     <div class="container" style="width: 800px;">
         <div class="row">
-          <div class="col-lg-12">
-            
+          <div class="col-lg-12">            
             <hr/>
             <br/>
             <div id="loader2">
               <p class="text-center">Loading...</p>
             </div>
-            <div id="content2" style="display: none;">
-
-                
-                    <form onSubmit="App.castVote(); return false;">
+            <div id="content2" style="display: none;">                    
                   <table class="table">
                 <thead>
                   <tr>
@@ -146,10 +155,24 @@
                 </tbody>
               </table>
               <hr/>
-              
-               
                   </div>
-                <button type="submit" class="btn btn-primary">Vote</button>
+                  <div id="resultsParties" style="display: none;">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Logo</th>
+                            <th scope="col">Votes</th>
+                          </tr>
+                        </thead>
+                        <tbody id="resultListParties">                                   
+                        </tbody>
+                      </table>
+                      <hr/> 
+                    </div>  
+                    <form onSubmit="App.castVote(); return false;">
+                <button type="submit" class="btn btn-primary"id="voteButton">Vote</button>
                 <hr />
               </form>
               <p id="accountAddress" class="text-center"></p>
