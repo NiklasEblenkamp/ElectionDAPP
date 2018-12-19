@@ -77,8 +77,8 @@ contract Election {
         // require a valid candidate
         require(_candidateId > 0 && _candidateId <= candidatesCount);
        
-        // record that voter has voted
-        voters[msg.sender] = true;
+        // record that voter has voted , DEFAULT = TRUE (means sender can only vote once)
+        voters[msg.sender] = false;
 
         // update candidate vote Count
         candidates[_candidateId].voteCount ++;
