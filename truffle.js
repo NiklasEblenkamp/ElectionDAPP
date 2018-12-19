@@ -1,6 +1,6 @@
-var HDWalletProvider = require("truffle-hdwallet-provider");
+/*var HDWalletProvider = require("truffle-hdwallet-provider");
 var mnemonic = "cable abstract acquire episode family crash egg diet speak scrap include doll"; // 12 word mnemonic
-var provider = new HDWalletProvider(mnemonic, "http://203.154.59.5:8545");
+var provider = new HDWalletProvider(mnemonic, "http://203.154.59.5:8545");*/
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
@@ -8,10 +8,10 @@ module.exports = {
   networks: {
     development: {
       host: "127.0.0.1",
-      port: 8545,
+      port: 7545,
       network_id: "*", // Match any network id
     },
-  live: {
+  /*live: {
     provider: () => provider,
     network_id: "*",        // Ethereum public network
     // optional config values:
@@ -21,6 +21,6 @@ module.exports = {
     // provider - web3 provider instance Truffle should use to talk to the Ethereum network.
     //          - function that returns a web3 provider instance (see below.)
     //          - if specified, host and port are ignored.
-  }
+  }*/
 }
 };
