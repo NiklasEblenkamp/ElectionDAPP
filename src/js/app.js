@@ -4,7 +4,6 @@ App = {
   account: '0x0',
   hasVoted: false,
   partiesCount: 3,
-  candidatesCount: 5,
   init: function() {
     return App.initWeb3();
   },
@@ -22,14 +21,15 @@ App = {
     }
     return App.initContract();
   },
-
   initContract: function() {
     $.getJSON("Election.json", function(election) {
       // Instantiate a new truffle contract from the artifact
       App.contracts.Election = TruffleContract(election);
       // Connect provider to interact with contract
       App.contracts.Election.setProvider(App.web3Provider);
+
       App.listenForEvents();
+
       return App.render();
     });
   },
@@ -44,9 +44,7 @@ App = {
         fromBlock: 0,
         toBlock: 'latest'
       }).watch(function(error, event) {
-        console.log("event triggered", event)
-        // Reload when a new vote is recorded
-        
+      // App.render();
       });
       instance.eventAddedParty({}, {
         fromBlock: 0,
@@ -55,7 +53,7 @@ App = {
         console.log("event triggered", event)
         console.log("The party "+event.args.name+" was added. Id: "+event.args.id)
         // Reload when a new vote is recorded
-        
+        //App.render();
       });
     });
   },
@@ -66,18 +64,11 @@ App = {
     var content = $("#content");
     var loader2 = $("#loader2");
     var content2 = $("#content2");
-
-    var resultsParties = $("#resultsParties");
-    var resultsCandidate = $("#resultsCandidate");
-
     loader.show();
-    content.hide();    
+    content.hide();
+
     loader2.show();
     content2.hide();
-
-    resultsParties.hide();
-    resultsCandidate.hide();
-
     // Load account data
     web3.eth.getCoinbase(function(err, account) {
       if (err === null) {
@@ -86,33 +77,32 @@ App = {
       }
     });
 
+    
+
     // Load contract data
     App.contracts.Election.deployed().then(function(instance) {
-      electionInstance = instance;          
+      electionInstance = instance;      
+     
+   
+     
       return electionInstance.candidatesCount();
     }).then(function(candidatesCount) {
-      //clear result tables
-      App.candidatesCount = candidatesCount;
-   
-
-      var resultListCandidates = $("#resultListCandidate");
-      var resultListParties = $("#resultListParties");
-      resultListCandidates.empty();
-      resultListParties.empty();
-
       var candidatesResults = $("#candidatesResults");
-      candidatesResults.empty();
+     // candidatesResults.empty();
 
       var candidatesSelect = $('#candidatesSelect');
       candidatesSelect.empty();
 
       var partiesResults = $("#partiesResults");
-      partiesResults.empty();
+      //partiesResults.empty();
 
       var partiesSelect = $('#partiesSelect');
       partiesSelect.empty();
 
+      var resultsCandidate =  $('#resultListCandidate');
+      var resultsParties =  $('#resultListParties');
 
+      
       for (var i = 1; i <= candidatesCount; i++) {
         electionInstance.candidates(i).then(function(candidate) {
           console.log("candidate  "+candidate);
@@ -120,13 +110,16 @@ App = {
           var name = candidate[1];
           var _provinceId = candidate[2];
           var partyId = candidate[4];
-         
+          var votesCandidate = candidate[3];
+         // Render candidate Result
+          
           var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td> <img src='imgs/" +partyId+".png' alt='' border=3 height=25 width=40></img></td><td><label class='container'> <input type='radio' value='"+id+"' name='radio2'> <span class='checkmark'></span> </label></td></tr>";
+          var resultCandidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td><img src='imgs/" + partyId + ".png' alt='' border=3 height=25 width=40></img></td><td id='cVotes"+id+"' >" + votesCandidate + "</td></tr>";
+          
           candidatesResults.append(candidateTemplate);
-         
-         /* Render candidate ballot option
-          var candidateOption = "<option value='" + id + "' >" + name + "</ option>"
-          candidatesSelect.append(candidateOption); */
+          resultsCandidate.append(resultCandidateTemplate);
+          
+        
         });
       }
       candidatesResults.append("<tr><td colspan='2'></td><td>Please choose a candidate</td><td><label class='container'> <input type='radio' checked='checked' name='radio2'> <span class='checkmark'></span> </label></td></tr>");
@@ -135,60 +128,56 @@ App = {
       electionInstance.parties(i).then(function(party) {
         var id = party[0];
         var name = party[1]; 
-        var voteCount = party[2];       
-        // Render party Result        
+        var voteCount = party[2];
+        
+        // Render party Result
+        
         var partyTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td><img src='imgs/" +id+".png' alt='' border=3 height=25 width=40></img></td><td><label class='container'> <input type='radio' value='"+id+"' name='radio'> <span class='checkmark'></span> </label></td></tr>" 
         partiesResults.append(partyTemplate);
-        // Render party ballot option       
+        var _resultListParties = "<tr><th>" + id + "</th><td>" + name + "</td><td><img src='imgs/" + id + ".png' alt='' border=3 height=25 width=40></img></td><td id='pVotes"+id+"'>" + voteCount + "</td></tr>";
+        resultsParties.append(_resultListParties);
+        // Render party ballot option
+        
+        
       });
     }
     partiesResults.append("<tr><td colspan='2'></td><td>Please choose a party</td><td><label class='container'> <input type='radio' checked='checked' name='radio'> <span class='checkmark'></span> </label></td></tr>");
       return electionInstance.voters(App.account);
-    }).then(function(hasVoted) {        
+    }).then(function(hasVoted) {
       // Do not allow a user to vote
-      console.log(App.candidatesCount+"<- C   P >"+App.partiesCount);
       if(hasVoted) {
+
         $('btn btn-primary').hide();
-        //Create Candidate Result table
+        $('votebtn').hide();
+        loader.hide();
+        content.hide();
+        content2.hide();
+        $('#partiesResults').show();
+        $('#resultsCandidate').show();
         
-        for(var i = 1; i <= App.candidatesCount; i++){
-          electionInstance.candidates(i).then(function(candidate) {     
-          var id = candidate[0];
-          var name = candidate[1];
-          var votesCandidate = candidate[3];
-          var partyId = candidate[4];
-          var _resultListCandidates = "<tr><th>" + id + "</th><td>" + name + "</td><td><img src='imgs/" +partyId+".png' alt='' border=3 height=25 width=40></img></td><td>"+votesCandidate+"</td></tr>"; 
-          console.log(_resultListCandidates);
-          resultListCandidates.append(_resultListCandidates);
-          });
-        }  
-         //Create Party Result table
-         for(var i = 1; i <= App.partiesCount; i++){
-          electionInstance.parties(i).then(function(party) {
-          var id = party[0];
-          var name = party[1]; 
-          var voteCount = party[2];
-          var _resultListParties = "<tr><th>" + id + "</th><td>" + name + "</td><td><img src='imgs/" +id+".png' alt='' border=3 height=25 width=40></img></td><td>"+voteCount+"</td></tr>"; 
-          resultListParties.append(_resultListParties);
-          });
-        }
-          
+        loader2.hide();
         
-      $('#voteButton').hide();
-      loader.hide();
-      content.hide();
-      loader2.hide();
-      content2.hide();
-      resultsParties.show();
-      resultsCandidate.show();
-    }}).catch(function(error) {
+      }else{
+        loader.hide();
+        loader2.hide();
+        content.show();
+        
+        content2.show();
+      }
+      
+      
+    }).catch(function(error) {
       console.warn(error);
     });
   },
 
   castVote: function() {
+
+
     var candidateId = $('input[name=radio2]:checked').val();
     var partyId = $('input[name=radio]:checked').val();
+
+
     console.log("ate: "+candidateId+" and the Party:"+partyId)  ;
     if(candidateId ==  "on"){
       alert("Please choose a candidate and try again");
@@ -203,11 +192,19 @@ App = {
     //console.log("You are schure you want to vote for Candidate: "+candidateId+++" and the Party:"+partyId++)  
       return instance.vote(candidateId, 1, partyId,{ from: App.account });
     }).then(function(result) {
-      // Wait for votes to update
-      $("#content").hide();
-      $("#loader").show(); 
-      $("#content2").hide();
-      $("#loader2").show(); 
+     
+      var candidateVote= $('#cVote'+candidateId).innerHTML; 
+      console.log(candidateVote);
+
+      $('btn btn-primary').hide();
+        $('#voteButton').hide();
+
+        $('#loader').hide();
+        $('#content').hide();
+        $('#content2').hide();
+
+        $('#resultsCandidate').show();
+        $('#resultsParties').show();
     }).catch(function(err) {
       console.error(err);
     });

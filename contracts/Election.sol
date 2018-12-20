@@ -79,10 +79,10 @@ contract Election {
        
         // record that voter has voted , DEFAULT = TRUE (means sender can only vote once)
         voters[msg.sender] = false;
-
+        parties[_partyId].voteCount++; 
         // update candidate vote Count
         candidates[_candidateId].voteCount ++;
-
+        
         // trigger voted event
         votedEvent(_candidateId, _partyId);
     }
